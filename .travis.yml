@@ -8,7 +8,6 @@ rvm:
   - 2.7
   - ruby-head
 gemfile:
-  - gemfiles/rails_4.gemfile
   - gemfiles/rails_5.gemfile
   - gemfiles/rails_6.gemfile
 matrix:
@@ -19,17 +18,19 @@ matrix:
       gemfile: gemfiles/rails_3.gemfile
     - rvm: 2.3
       gemfile: gemfiles/rails_3.gemfile
+    - rvm: 2.2
+      gemfile: gemfiles/rails_4.gemfile
+    - rvm: 2.3
+      gemfile: gemfiles/rails_4.gemfile
+    - rvm: 2.4
+      gemfile: gemfiles/rails_4.gemfile
   exclude:
+    - rvm: 2.2
+      gemfile: gemfiles/rails_5.gemfile
     - rvm: 2.2
       gemfile: gemfiles/rails_6.gemfile
     - rvm: 2.3
       gemfile: gemfiles/rails_6.gemfile
     - rvm: 2.4
       gemfile: gemfiles/rails_6.gemfile
-    - rvm: 2.5
-      gemfile: gemfiles/rails_4.gemfile
-    - rvm: 2.6
-      gemfile: gemfiles/rails_4.gemfile
-    - rvm: 2.7
-      gemfile: gemfiles/rails_4.gemfile
 script: bundle exec rake
