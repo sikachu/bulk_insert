@@ -9,7 +9,7 @@ module BulkInsert
     attr_accessor :adapter_name
     attr_reader :ignore, :update_duplicates, :result_sets
 
-    def initialize(connection, table_name, primary_key, column_names, set_size = 500, ignore = false, update_duplicates = false, return_primary_keys = false)
+    def initialize(connection, table_name, primary_key, column_names, set_size=500, ignore=false, update_duplicates=false, return_primary_keys=false, ignored_columns_on_update=nil)
       @statement_adapter = StatementAdapters.adapter_for(connection)
 
       @connection = connection
@@ -20,12 +20,14 @@ module BulkInsert
       @ignore = ignore
       @update_duplicates = update_duplicates
       @return_primary_keys = return_primary_keys
+      @ignored_columns_on_update = Array.wrap(ignored_columns_on_update || "created_at")
 
       columns = connection.columns(table_name)
       column_map = columns.inject({}) { |h, c| h.update(c.name => c) }
 
       @primary_key = primary_key
       @columns = column_names.map { |name| column_map[name.to_s] }
+      @columns_for_update = @columns.reject { |column| @ignored_columns_on_update.include?(column.name)  }
       @table_name = connection.quote_table_name(table_name)
       @column_names = column_names.map { |name| connection.quote_column_name(name) }.join(",")
 
@@ -122,7 +124,7 @@ module BulkInsert
 
       if !rows.empty?
         sql << rows.join(",")
-        sql << @statement_adapter.on_conflict_statement(@columns, ignore, update_duplicates)
+        sql << @statement_adapter.on_conflict_statement(@columns_for_update, ignore, update_duplicates)
         sql << @statement_adapter.primary_key_return_statement(@primary_key) if @return_primary_keys
         sql
       else
